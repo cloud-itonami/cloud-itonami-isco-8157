@@ -1,5 +1,5 @@
 (ns laundrycoord.governor-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [laundrycoord.store :as store]
             [laundrycoord.advisor :as advisor]
             [laundrycoord.governor :as governor]))
