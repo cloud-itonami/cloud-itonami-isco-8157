@@ -1,0 +1,35 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a plant scheduling/logistics coordination robot
+;; does crew scheduling, production/inventory logging and detergent and
+;; linen-stock supply for an industrial laundry crew; it never runs the
+;; washer-extractors, dryers or ironers. Its physical work is linen and
+;; detergent logistics: moving a tall cart of wet linen between the washers
+;; and the dryers, and the detergent transfer line it keeps supplied.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-8157"
+ :cases
+ [{:id :wet-linen-cart
+   :kind :transport
+   :procedure "AMR moves a tall cart of wet linen from the washer-extractors to the dryers and stops hard for a person crossing"
+   :params {:mass-kg 60.0 :distance-m 25.0 :v-max-mps 1.0 :a-max-mps2 0.5
+            :brake-decel-mps2 1.5 :drive-force-n 400.0 :crr 0.02
+            :cog-height-m 0.40 :payload-cog-height-m 0.90 :support-half-length-m 0.25
+            :max-time-s 600.0}
+   :sweep {:param :payload-kg :values [50.0 100.0 150.0 200.0 250.0 300.0]}
+   :quantity :min-tipover-margin
+   :limit {:min 0.5 :basis "estimate: keep at least half the static stability margin during a 1.5 m/s2 stop, allowing for uneven floors and load shift"}
+   :boundary {:lo 10.0 :hi 600.0}}
+  {:id :detergent-transfer-line
+   :kind :pipe-flow
+   :procedure "pump transfers viscous liquid detergent from the IBC through a 20 mm, 20 m line to the washer dosing manifold"
+   :params {:diameter-m 0.020 :length-m 20.0 :roughness-m 1.5e-6
+            :density-kg-m3 1050.0 :viscosity-pa-s 0.30 :pump-efficiency 0.40 :elevation-m 1.0}
+   :sweep {:param :q-m3s :values [0.00005 0.0001 0.00015 0.0002 0.0003]}
+   :quantity :pressure-drop-pa
+   :limit {:max 300000.0 :basis "estimate: about 3 bar discharge of a small peristaltic/diaphragm detergent transfer pump; detergent viscosity ~300 mPa s is also an estimate"}
+   :boundary {:lo 0.00001 :hi 0.0005}}]}
